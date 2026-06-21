@@ -1,0 +1,6 @@
+CREATE TABLE products (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  stock_count BIGINT NOT NULL DEFAULT 0,
+  price_cents BIGINT NOT NULL
+);

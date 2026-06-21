@@ -5,6 +5,10 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	_ "github.com/lib/pq"
 )
 
@@ -20,7 +24,6 @@ func NewDatabase(ctx context.Context, dbCfg *DBConfig) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
 
 	db.SetMaxOpenConns(dbCfg.MaxConns)
 	db.SetMaxIdleConns(dbCfg.MinConns)
@@ -32,4 +35,16 @@ func NewDatabase(ctx context.Context, dbCfg *DBConfig) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func Migrate(ctx context.Context, connectionString string) error {
+	m, err := migrate.New("file://db/migrations", connectionString)
+	if err != nil {
+		return err
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	return nil
 }
