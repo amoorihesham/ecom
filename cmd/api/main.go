@@ -1,8 +1,8 @@
 package main
 
 import (
-	"ecom/internal/config"
-	"ecom/internal/logger"
+	"ecom/internal/shared/config"
+	"ecom/internal/shared/logger"
 	"fmt"
 	"os"
 )
