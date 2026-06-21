@@ -24,7 +24,7 @@ func (h *Handlers) Create(w http.ResponseWriter, r *http.Request) {
 	created, err := h.service.Create(r.Context(), out)
 	if err != nil {
 		h.logger.Error("service Create failed", "err", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		httpx.SendErrorResponse(w, &httpx.ErrorEnvlop{Code: http.StatusBadRequest, Message: "Faild to create", Details: make(map[string]string, 0)})
 		return
 	}
 
