@@ -4,21 +4,13 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-	"time"
 )
 
 func New(level string, format string) *slog.Logger {
 	opts := &slog.HandlerOptions{
 		Level:     parseLevel(level),
 		AddSource: true,
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			if a.Key == slog.TimeKey {
-				if t, ok := a.Value.Any().(time.Time); ok {
-					a.Value = slog.StringValue(t.Format(time.DateTime))
-				}
-			}
-			return a
-		}}
+	}
 
 	return slog.New(getHandler(format, opts))
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type config struct {
@@ -15,6 +16,7 @@ type config struct {
 	DatabaseUrl string
 	DBMaxConns  int
 	DBMinConns  int
+	PingTimeout time.Duration
 }
 
 func New(path string) (*config, error) {
@@ -22,7 +24,17 @@ func New(path string) (*config, error) {
 		return nil, err
 	}
 
-	c := config{Env: envString("ENV", "development"), Addr: envString("HOST", "8080"), LogLevel: envString("LOG_LEVEL", "info"), LogFormat: envString("LOG_FORMAT", "text"), DatabaseUrl: envString("DATABASE_URL", ""), DBMaxConns: envInt("DB_MAX_CONN", 10), DBMinConns: envInt("DB_MIN_CONN", 5)}
+	c := config{
+		Env:       envString("ENV", "development"),
+		Addr:      envString("HOST", "8080"),
+		LogLevel:  envString("LOG_LEVEL", "info"),
+		LogFormat: envString("LOG_FORMAT", "text"),
+
+		DatabaseUrl: envString("DATABASE_URL", ""),
+		DBMaxConns:  envInt("DB_MAX_CONN", 10),
+		DBMinConns:  envInt("DB_MIN_CONN", 5),
+		PingTimeout: envDur("PING_TIMEOUT", 3*time.Second),
+	}
 
 	if err := c.Validate(); err != nil {
 		return &config{}, err
