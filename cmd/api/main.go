@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"ecom/internal/config"
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println("Hello world")
+	cfg, err := config.New(".env")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Print(cfg)
 }
