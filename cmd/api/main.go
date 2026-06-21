@@ -2,6 +2,7 @@ package main
 
 import (
 	"ecom/internal/config"
+	"ecom/internal/logger"
 	"fmt"
 	"os"
 )
@@ -12,6 +13,6 @@ func main() {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
-	fmt.Print(cfg)
+	logX := logger.New(cfg.LogLevel, cfg.LogFormat)
+	logX.Info("INITIALIZED")
 }
