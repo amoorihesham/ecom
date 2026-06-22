@@ -38,7 +38,7 @@ func NewDatabase(ctx context.Context, dbCfg *DBConfig) (*sql.DB, error) {
 }
 
 func Migrate(ctx context.Context, connectionString string) error {
-	m, err := migrate.New("file://db/migrations", connectionString)
+	m, err := migrate.New("file://internal/shared/database/migrations", connectionString)
 	if err != nil {
 		return err
 	}

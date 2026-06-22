@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"ecom/cmd/application"
+	"ecom/internal/modules/auth"
 	"ecom/internal/modules/catalog"
 	"ecom/internal/shared/config"
 	"ecom/internal/shared/database"
@@ -47,8 +48,12 @@ func main() {
 		logX.Error("Migration", "error", err.Error())
 	}
 
+	logX.Info("Initializing the mux routers...")
 	mux := http.NewServeMux()
 	catalog.Initialize(mux, db, logX)
+	auth.Initialize(mux, db, logX)
+	logX.Info("Initialized the mux routers...")
+
 	app := application.NewApplication(&application.AppConfig{
 		Addr: cfg.Addr,
 		Mux:  mux,
