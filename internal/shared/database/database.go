@@ -45,6 +45,5 @@ func Migrate(ctx context.Context, connectionString string) error {
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return err
 	}
-
 	return nil
 }
