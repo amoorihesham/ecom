@@ -4,10 +4,10 @@ import (
 	"context"
 	"ecom/cmd/application"
 	"ecom/internal/modules/auth"
-	"ecom/internal/modules/catalog"
 	"ecom/internal/shared/config"
 	"ecom/internal/shared/database"
 	"ecom/internal/shared/logger"
+	middleware "ecom/internal/shared/middlewares"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,18 +16,22 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	errCh := make(chan error, 1)
-	sigCh := make(chan os.Signal, 1)
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+	)
+	defer stop()
 
-	signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	errCh := make(chan error, 1)
 
 	cfg, err := config.New(".env")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+
 	logX := logger.New(cfg.LogLevel, cfg.LogFormat)
 
 	logX.Info("Initializing Database...")
@@ -38,40 +42,47 @@ func main() {
 		PingTimeout:      cfg.PingTimeout,
 	})
 	if err != nil {
-		logX.Error("Database Error", "error", err.Error())
+		logX.Error("Database Init", "error", err.Error())
 		os.Exit(1)
 	}
 	defer db.Close()
 
-	logX.Info("Apply db migrations...")
-	if err := database.Migrate(ctx, cfg.DatabaseUrl); err != nil {
+	logX.Info("Running db migrations...")
+	if err := database.Migrate(context.Background(), cfg.DatabaseUrl); err != nil {
 		logX.Error("Migration", "error", err.Error())
+		os.Exit(1)
 	}
 
-	logX.Info("Initializing the mux routers...")
+	logX.Info("Initializing routes...")
+
 	mux := http.NewServeMux()
-	catalog.Initialize(mux, db, logX)
+
+	wrappedMux := middleware.Chain(
+		middleware.Logging(logX),
+	)(mux)
+
 	auth.Initialize(mux, db, logX)
-	logX.Info("Initialized the mux routers...")
 
 	app := application.NewApplication(&application.AppConfig{
 		Addr: cfg.Addr,
-		Mux:  mux,
+		Mux:  wrappedMux,
 	})
 
-	logX.Info("server started", "host", cfg.Addr)
 	app.Run(ctx, logX, errCh)
 
 	select {
-	case sig := <-sigCh:
-		logX.Info("shutdown signal received.", "signal", sig.String())
-		logX.Info("shuting down....")
+	case <-ctx.Done():
+		logX.Info("shutdown signal received.")
+
 	case err := <-errCh:
-		logX.Error("server start faild", "error", err)
+		logX.Error("server error occured", "error", err)
 	}
 
-	if err := app.Shutdown(ctx); err != nil {
-		logX.Error("server shutdown faild", "error", err)
+	logX.Info("shutting down server")
+
+	if err := app.Shutdown(context.Background()); err != nil {
+		logX.Error("shutdown failed", "error", err)
+		os.Exit(1)
 	}
 
 	logX.Info("server shutdown complete")

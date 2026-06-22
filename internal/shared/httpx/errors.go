@@ -1,16 +1,30 @@
 package httpx
 
-import (
-	"encoding/json"
-	"net/http"
-)
+type ErrorCode string
 
-type ErrorEnvlop struct {
-	Code    int
-	Message string
-	Details map[string]string
+type AppError struct {
+	Code    ErrorCode `json:"code"`
+	Message string    `json:"message"`
+	Err     error     `json:"-"`
 }
 
-func SendErrorResponse(w http.ResponseWriter, envlop *ErrorEnvlop) {
-	json.NewEncoder(w).Encode(envlop)
+var (
+	ErrBadRequest   ErrorCode = "BAD_REQUEST"
+	ErrUnauthorized ErrorCode = "UNAUTHORIZED"
+	ErrForbidden    ErrorCode = "FORBIDDEN"
+	ErrNotFound     ErrorCode = "NOT_FOUND"
+	ErrConflict     ErrorCode = "CONFLICT"
+	ErrInternal     ErrorCode = "INTERNAL_ERROR"
+)
+
+func (ap *AppError) Error() string {
+	return ap.Err.Error()
+}
+
+func NewError(code ErrorCode, message string, err error) error {
+	return &AppError{
+		Code:    code,
+		Message: message,
+		Err:     err,
+	}
 }

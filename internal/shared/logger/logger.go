@@ -8,9 +8,14 @@ import (
 
 func New(level string, format string) *slog.Logger {
 	opts := &slog.HandlerOptions{
-		Level:     parseLevel(level),
-		AddSource: true,
-	}
+		Level: parseLevel(level),
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				t := a.Value.Time()
+				return slog.String(a.Key, t.Format("2026-04-05 15:04:05"))
+			}
+			return a
+		}}
 
 	return slog.New(getHandler(format, opts))
 }

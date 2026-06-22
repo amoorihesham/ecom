@@ -22,7 +22,10 @@ type User struct {
 }
 
 type IAuthHandler interface {
-	Create(w http.ResponseWriter, r *http.Request)
+	Register(w http.ResponseWriter, r *http.Request)
+	// Login(w http.ResponseWriter, r *http.Request)
+	// Refresh(w http.ResponseWriter, r *http.Request)
+	// Logout(w http.ResponseWriter, r *http.Request)
 }
 
 var _ IAuthHandler = (*Handler)(nil)
@@ -32,9 +35,9 @@ func Initialize(mux *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	service := NewAuthService(repo, logger)
 	handler := NewAuthHandler(service, logger)
 
-	mux.HandleFunc("POST /auth/register", handler.Create)
-	mux.HandleFunc("POST /auth/login", handler.Create)
-	mux.HandleFunc("POST /auth/refresh", handler.Create)
-	mux.HandleFunc("POST /auth/logout", handler.Create)
+	mux.HandleFunc("POST /auth/register", handler.Register)
+	// mux.HandleFunc("POST /auth/login", handler.Login)
+	// mux.HandleFunc("POST /auth/refresh", handler.Refresh)
+	// mux.HandleFunc("POST /auth/logout", handler.Logout)
 
 }
