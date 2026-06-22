@@ -7,18 +7,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Service interface {
-	Generate(user httpx.AuthUser) (string, error)
-	Parse(token string) (*httpx.AuthUser, error)
-}
-
 type service struct {
 	secret string
 	issuer string
 	expiry time.Duration
 }
 
-func New(cfg *Config) Service {
+func New(cfg *Config) JWTService {
 	return &service{
 		secret: cfg.Secret,
 		issuer: cfg.Issuer,

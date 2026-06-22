@@ -55,7 +55,10 @@ func main() {
 	logX.Info("Initializing routes...")
 
 	mux := http.NewServeMux()
-	auth.Initialize(mux, db, logX)
+	auth.Initialize(mux, db, logX, &auth.Config{
+		BcryptCost: cfg.BcryptCost,
+		JWTSecret:  cfg.JWTSecret,
+	})
 
 	app := application.NewApplication(&application.AppConfig{
 		Addr: cfg.Addr,

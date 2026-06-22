@@ -17,6 +17,9 @@ type config struct {
 	DBMaxConns  int
 	DBMinConns  int
 	PingTimeout time.Duration
+
+	BcryptCost int
+	JWTSecret  string
 }
 
 func New(path string) (*config, error) {
@@ -34,6 +37,9 @@ func New(path string) (*config, error) {
 		DBMaxConns:  envInt("DB_MAX_CONN", 10),
 		DBMinConns:  envInt("DB_MIN_CONN", 5),
 		PingTimeout: envDur("PING_TIMEOUT", 3*time.Second),
+
+		BcryptCost: envInt("BCRYPT_COST", 12),
+		JWTSecret:  envString("JWT_SECRET", ""),
 	}
 
 	if err := c.Validate(); err != nil {

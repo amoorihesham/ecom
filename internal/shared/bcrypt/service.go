@@ -2,11 +2,6 @@ package bcryptx
 
 import "golang.org/x/crypto/bcrypt"
 
-type HashService interface {
-	Hash(password string) (string, error)
-	Compare(raw string, hash string) bool
-}
-
 type service struct {
 	bcryptCost int
 }
