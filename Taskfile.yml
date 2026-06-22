@@ -3,6 +3,11 @@ version: "3"
 dotenv:
   - .env
 
+vars:
+  MIGRATIONS_PATH: ./internal/shared/database/migrations
+  ENTERY_PATH: ./cmd/api
+  OUTPUT_PATH: ./bin/api.exe
+
 tasks:
   format:
     desc: Format source code
@@ -22,19 +27,19 @@ tasks:
   build:
     desc: Build the API binary
     cmds:
-      - go build -o ./bin/api.exe ./cmd/api
+      - go build -o {{.OUTPUT_PATH}} {{.ENTERY_PATH}}
 
   migration-up:
     desc: "run database up migrations"
     cmds:
-      - migrate -path ./db/migrations -database "{{.DATABASE_URL}}" up
+      - migrate -path {{.MIGRATIONS_PATH}} -database "{{.DATABASE_URL}}" up
 
   migrate-down:
     desc: Roll back one migration
     cmds:
-      - migrate -path ./db/migrations -database "{{.DATABASE_URL}}" down 1
+      - migrate -path {{.MIGRATIONS_PATH}} -database "{{.DATABASE_URL}}" down 1
 
   migrate-create:
     desc: Create new database migration
     cmds:
-      - migrate create -ext sql -dir ./db/migrations {{.CLI_ARGS}}
+      - migrate create -ext sql -dir {{.MIGRATIONS_PATH}} -seq {{.CLI_ARGS}}
