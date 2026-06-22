@@ -7,7 +7,6 @@ import (
 	"ecom/internal/shared/config"
 	"ecom/internal/shared/database"
 	"ecom/internal/shared/logger"
-	middleware "ecom/internal/shared/middlewares"
 	"fmt"
 	"net/http"
 	"os"
@@ -56,16 +55,11 @@ func main() {
 	logX.Info("Initializing routes...")
 
 	mux := http.NewServeMux()
-
-	wrappedMux := middleware.Chain(
-		middleware.Logging(logX),
-	)(mux)
-
 	auth.Initialize(mux, db, logX)
 
 	app := application.NewApplication(&application.AppConfig{
 		Addr: cfg.Addr,
-		Mux:  wrappedMux,
+		Mux:  mux,
 	})
 
 	app.Run(ctx, logX, errCh)
