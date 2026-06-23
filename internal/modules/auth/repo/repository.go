@@ -34,11 +34,11 @@ func (r *AuthRepository) Create(ctx context.Context, user *models.RegisterReques
 }
 
 func (r *AuthRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
-	q := `SELECT id, public_id, email, full_name, role, created_at FROM users WHERE email = $1`
+	q := `SELECT id, public_id, email, password_hash, full_name, role, created_at FROM users WHERE email = $1`
 
 	var found models.User
 	row := r.db.QueryRowContext(ctx, q, email)
-	if err := row.Scan(&found.ID, &found.PublicId, &found.Email, &found.Fullname, &found.Role, &found.CreatedAt); err != nil {
+	if err := row.Scan(&found.ID, &found.PublicId, &found.Email, &found.PasswordHash, &found.Fullname, &found.Role, &found.CreatedAt); err != nil {
 
 		return nil, httpx.HandleError(err)
 	}

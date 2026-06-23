@@ -33,3 +33,27 @@ func (service *Service) Register(ctx context.Context, user *models.RegisterReque
 
 	return cUser, err
 }
+
+func (service *Service) Login(ctx context.Context, user *models.LoginRequest) (*string, error) {
+	existing, err := service.repo.GetByEmail(ctx, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if existing == nil {
+		return nil, httpx.NewError(httpx.ErrNotFound, "User not found")
+	}
+
+	match := service.hasher.Compare(user.Password, existing.PasswordHash)
+	if !match {
+
+		return nil, httpx.NewError(httpx.ErrBadRequest, "Invalid credentials")
+	}
+
+	accessToken, err := service.jwt.Generate(httpx.AuthUser{PublicID: existing.PublicId.String(), Role: existing.Role})
+	if err != nil {
+		return nil, httpx.NewError(httpx.ErrConflict, "Can not generate your access token")
+	}
+
+	return &accessToken, nil
+}

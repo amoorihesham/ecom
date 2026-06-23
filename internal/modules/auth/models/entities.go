@@ -10,7 +10,7 @@ type User struct {
 	ID           int64     `json:"-"`
 	PublicId     uuid.UUID `json:"id"`
 	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
+	PasswordHash string    `json:"password_hash"`
 	Fullname     string    `json:"full_name"`
 	Role         string    `json:"role"`
 	IsActive     bool      `json:"is_active"`

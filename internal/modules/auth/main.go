@@ -22,5 +22,6 @@ func Initialize(mux *http.ServeMux, db *sql.DB, logger *slog.Logger, cfg *AuthCo
 	handler := handler.NewAuthHandler(service, logger)
 
 	mux.HandleFunc("POST /auth/register", handler.Register)
+	mux.HandleFunc("POST /auth/login", handler.Login)
 
 }

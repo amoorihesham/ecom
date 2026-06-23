@@ -11,6 +11,7 @@ import (
 
 type AuthService interface {
 	Register(ctx context.Context, user *models.RegisterRequest) (*models.User, error)
+	Login(ctx context.Context, user *models.LoginRequest) (*string, error)
 }
 
 type Service struct {

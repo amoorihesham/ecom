@@ -1,6 +1,8 @@
 package bcryptx
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 type service struct {
 	bcryptCost int
@@ -20,6 +22,7 @@ func (s *service) Hash(password string) (string, error) {
 }
 func (s *service) Compare(raw string, hash string) bool {
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(raw)); err != nil {
+
 		return false
 	}
 	return true

@@ -7,7 +7,8 @@ import (
 )
 
 type AuthHandler interface {
-	Register(w http.ResponseWriter, r *http.Request)
+	Register(http.ResponseWriter, *http.Request)
+	Login(http.ResponseWriter, *http.Request)
 }
 
 type Handler struct {
