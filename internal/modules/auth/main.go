@@ -14,7 +14,7 @@ import (
 
 var _ handler.AuthHandler = (*handler.Handler)(nil)
 
-func Initialize(mux *http.ServeMux, db *sql.DB, logger *slog.Logger, cfg *Config) {
+func Initialize(mux *http.ServeMux, db *sql.DB, logger *slog.Logger, cfg *AuthConfig) {
 	hasher := bcryptx.New(&bcryptx.Config{Cost: cfg.BcryptCost})
 	jwt := jwt.New(&jwt.Config{Secret: cfg.JWTSecret, Issuer: "ecom-api", AccessExpiry: 15 * time.Minute})
 	repo := repository.NewAuthRepository(db)

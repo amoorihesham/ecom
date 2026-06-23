@@ -1,6 +1,6 @@
 package auth
 
-type Config struct {
+type AuthConfig struct {
 	BcryptCost int
 	JWTSecret  string
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func WithLogging(logger *slog.Logger) Middleware {
-	return func(next http.HandlerFunc) http.HandlerFunc {
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 			reqId, ok := r.Context().Value(ReqIdKey).(string)
@@ -23,7 +23,7 @@ func WithLogging(logger *slog.Logger) Middleware {
 				"path", r.URL.Path,
 			)
 
-			next(w, r)
+			next.ServeHTTP(w, r)
 
 			logger.Info("request complete", "method", r.Method, "path", r.URL.Path, "duration", time.Since(start))
 		})

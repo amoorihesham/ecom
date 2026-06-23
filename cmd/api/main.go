@@ -7,9 +7,7 @@ import (
 	"ecom/internal/shared/config"
 	"ecom/internal/shared/database"
 	"ecom/internal/shared/logger"
-	"ecom/internal/shared/middlewares"
 	"fmt"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -55,16 +53,15 @@ func main() {
 
 	logX.Info("Initializing routes...")
 
-	mux := http.NewServeMux()
-	wrappedMux := middlewares.Chain(middlewares.WithRequestId(), middlewares.WithLogging(logX))(mux.ServeHTTP)
-	auth.Initialize(mux, db, logX, &auth.Config{
-		BcryptCost: cfg.BcryptCost,
-		JWTSecret:  cfg.JWTSecret,
-	})
+	handler := application.NewRouter(db, logX, &application.RouterConfig{
+		Auth: auth.AuthConfig{
+			BcryptCost: cfg.BcryptCost,
+			JWTSecret:  cfg.JWTSecret,
+		}})
 
 	app := application.NewApplication(&application.AppConfig{
-		Addr: cfg.Addr,
-		Mux:  wrappedMux,
+		Addr:    cfg.Addr,
+		Handler: handler,
 	})
 
 	app.Run(ctx, logX, errCh)

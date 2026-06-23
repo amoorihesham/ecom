@@ -8,8 +8,8 @@ import (
 )
 
 type AppConfig struct {
-	Addr string
-	Mux  http.Handler
+	Addr    string
+	Handler http.Handler
 }
 
 type App struct {
@@ -18,7 +18,7 @@ type App struct {
 
 func NewApplication(cfg *AppConfig) *App {
 
-	return &App{server: &http.Server{Addr: ":" + cfg.Addr, Handler: cfg.Mux}}
+	return &App{server: &http.Server{Addr: ":" + cfg.Addr, Handler: cfg.Handler}}
 }
 
 func (app *App) Run(ctx context.Context, logger *slog.Logger, errCh chan<- error) {
