@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"ecom/internal/modules/auth/models"
-	"ecom/internal/shared/database"
 	"ecom/internal/shared/httpx"
 
 	"github.com/google/uuid"
@@ -28,7 +27,7 @@ func (r *AuthRepository) Create(ctx context.Context, user *models.RegisterReques
 	row := r.db.QueryRowContext(ctx, q, user.Email, user.PasswordHash, user.Fullname)
 
 	if err := row.Scan(&created.ID, &created.PublicId, &created.Email, &created.Fullname, &created.Role, &created.CreatedAt); err != nil {
-		return nil, database.DBToAppError(err)
+		return nil, httpx.HandleError(err)
 	}
 
 	return &created, nil
@@ -40,14 +39,8 @@ func (r *AuthRepository) GetByEmail(ctx context.Context, email string) (*models.
 	var found models.User
 	row := r.db.QueryRowContext(ctx, q, email)
 	if err := row.Scan(&found.ID, &found.PublicId, &found.Email, &found.Fullname, &found.Role, &found.CreatedAt); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, httpx.NewError(
-				httpx.ErrNotFound,
-				"user not found",
-				err,
-			)
-		}
-		return nil, database.DBToAppError(err)
+
+		return nil, httpx.HandleError(err)
 	}
 	return &found, nil
 

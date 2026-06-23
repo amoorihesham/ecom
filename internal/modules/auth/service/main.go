@@ -19,21 +19,20 @@ func (service *Service) Register(ctx context.Context, user *models.RegisterReque
 	if err != nil {
 		return nil, err
 	}
+	service.logger.Debug("IsExistByEmail", "err", err)
 
 	if exists {
-		return nil, httpx.NewError(
-			httpx.ErrConflict,
-			"email already exists",
-			nil,
-		)
+		return nil, httpx.NewError(httpx.ErrConflict, "Email in use")
 	}
+	service.logger.Debug("exists", "err", err)
 
 	hasedPassword, err := service.hasher.Hash(user.PasswordHash)
 	if err != nil {
-		return nil, httpx.NewError(httpx.ErrBadRequest, "Password error", err)
+		return nil, err
 	}
+	service.logger.Debug("hasedPassword", "err", err)
 
 	cUser, err := service.repo.Create(ctx, &models.RegisterRequest{Email: user.Email, Fullname: user.Fullname, PasswordHash: hasedPassword})
-
+	service.logger.Debug("CREATE", "err", err)
 	return cUser, err
 }
