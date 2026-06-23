@@ -25,7 +25,12 @@ func WithLogging(logger *slog.Logger) Middleware {
 
 			next.ServeHTTP(w, r)
 
-			logger.Info("request complete", "method", r.Method, "path", r.URL.Path, "duration", time.Since(start))
+			logger.Info(
+				"request complete",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"duration", time.Since(start),
+			)
 		})
 	}
 }
