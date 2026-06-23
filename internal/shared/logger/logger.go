@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 )
 
 func New(level string, format string) *slog.Logger {
@@ -14,6 +15,12 @@ func New(level string, format string) *slog.Logger {
 				t := a.Value.Time()
 				return slog.String(a.Key, t.Format("2026-04-05 15:04:05"))
 			}
+
+			if a.Value.Kind() == slog.KindDuration {
+				d := time.Duration(a.Value.Duration())
+				return slog.String(a.Key, d.String())
+			}
+
 			return a
 		}}
 
